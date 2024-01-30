@@ -1,8 +1,8 @@
-import Grapes from "./component/Grapes";
+import GrapesEditor from "./component/Grapes";
 import "grapesjs/dist/css/grapes.min.css"; // Include GrapeJS styles
 
 function App() {
-  return <Grapes />;
+  return <GrapesEditor />;
 }
 
 export default App;
