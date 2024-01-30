@@ -32,6 +32,7 @@ body {
 
 .panel__right {
   flex-basis: 230px;
+  background-color: #444;
   position: relative;
   overflow-y: auto;
 }
@@ -45,4 +46,8 @@ body {
 
 .editor-canvas {
   flex-grow: 1;
+}
+
+.panel__switcher {
+  position: initial;
 }

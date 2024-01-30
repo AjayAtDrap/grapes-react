@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import grapesjs from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
-import "../styles/main.css"
+import "../styles/main.css";
 
 const GrapesEditor = () => {
   useEffect(() => {
@@ -10,6 +10,7 @@ const GrapesEditor = () => {
       fromElement: true,
       height: "100vh",
       width: "auto",
+
       storageManager: false,
       // panels: { defaults: [] },
       blockManager: {
@@ -25,8 +26,8 @@ const GrapesEditor = () => {
             id: "layers",
             el: ".panel__right",
             resizable: {
-              maxDim: 450,
-              minDim: 200,
+              maxDim: 750,
+              minDim: 400,
               tc: 0,
               cl: 1,
               cr: 0,
@@ -36,6 +37,81 @@ const GrapesEditor = () => {
           },
         ],
       },
+      panels: {
+        defaults: [
+          // ...
+          {
+            id: "panel-switcher",
+            el: ".panel__switcher",
+            buttons: [
+              {
+                id: "show-layers",
+                active: true,
+                label: "Layers",
+                command: "show-layers",
+                // Once activated disable the possibility to turn it off
+                togglable: false,
+              },
+              {
+                id: "show-style",
+                active: true,
+                label: "Styles",
+                command: "show-styles",
+                togglable: false,
+              },
+            ],
+          },
+        ],
+      },
+    
+      selectorManager: {
+        appendTo: ".styles-container",
+      },
+      styleManager: {
+        appendTo: ".styles-container",
+        sectors: [
+          {
+            name: "Dimension",
+            open: false,
+            // Use built-in properties
+            buildProps: ["width", "min-height", "padding"],
+            // Use `properties` to define/override single property
+            properties: [
+              {
+                // Type of the input,
+                // options: integer | radio | select | color | slider | file | composite | stack
+                type: "integer",
+                name: "The width", // Label for the property
+                property: "width", // CSS property (if buildProps contains it will be extended)
+                units: ["px", "%"], // Units, available only for 'integer' types
+                defaults: "auto", // Default value
+                min: 0, // Min value, available only for 'integer' types
+              },
+            ],
+          },
+          {
+            name: "Extra",
+            open: false,
+            buildProps: ["background-color", "box-shadow", "custom-prop"],
+            properties: [
+              {
+                id: "custom-prop",
+                name: "Custom Label",
+                property: "font-size",
+                type: "select",
+                defaults: "32px",
+                // List of options, available only for 'select' and 'radio'  types
+                options: [
+                  { value: "12px", name: "Tiny" },
+                  { value: "18px", name: "Medium" },
+                  { value: "32px", name: "Big" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      
     });
 
     // Rest of your block manager and other configurations...
@@ -152,6 +228,40 @@ const GrapesEditor = () => {
         },
       ],
     });
+    editor.Commands.add("show-layers", {
+      getRowEl(editor) {
+        return editor.getContainer().closest(".editor-row");
+      },
+      getLayersEl(row) {
+        return row.querySelector(".layers-container");
+      },
+
+      run(editor, sender) {
+        const lmEl = this.getLayersEl(this.getRowEl(editor));
+        lmEl.style.display = "";
+      },
+      stop(editor, sender) {
+        const lmEl = this.getLayersEl(this.getRowEl(editor));
+        lmEl.style.display = "none";
+      },
+    });
+    editor.Commands.add("show-styles", {
+      getRowEl(editor) {
+        return editor.getContainer().closest(".editor-row");
+      },
+      getStyleEl(row) {
+        return row.querySelector(".styles-container");
+      },
+
+      run(editor, sender) {
+        const smEl = this.getStyleEl(this.getRowEl(editor));
+        smEl.style.display = "";
+      },
+      stop(editor, sender) {
+        const smEl = this.getStyleEl(this.getRowEl(editor));
+        smEl.style.display = "none";
+      },
+    });
     // Cleanup when component unmounts
     return () => {
       editor.destroy();
@@ -163,6 +273,7 @@ const GrapesEditor = () => {
       <div className="row">
         <div className="col-md-12 panel__top">
           <div className="panel__basic-actions"></div>
+          <div class="panel__switcher"></div>
         </div>
       </div>
 
@@ -177,6 +288,8 @@ const GrapesEditor = () => {
           </div>
           <div className="panel__right vh-100 d-none d-sm-block">
             <div className="layers-container"></div>
+            <div class="styles-container"></div>
+            <div class="traits-container"></div>
           </div>
         </div>
       </div>
