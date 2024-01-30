@@ -4,15 +4,35 @@ import "grapesjs/dist/css/grapes.min.css";
 import "../styles/main.css";
 
 const GrapesEditor = () => {
+  const projectID = '1'; // Set a unique project ID
+  const projectEndpoint = `http://localhost:3001/api/projects/${projectID}`;
+
   useEffect(() => {
     const editor = grapesjs.init({
       container: "#gjs",
       fromElement: true,
       height: "100vh",
       width: "auto",
-
-      storageManager: false,
-      // panels: { defaults: [] },
+      panels: { defaults: [] },
+    
+      storageManager: {
+        type: 'remote',
+        stepsBeforeSave: 3,
+        options: {
+          remote: {
+            urlLoad: projectEndpoint,
+            urlStore: projectEndpoint,
+            // The `remote` storage uses the POST method when stores data but
+            // the json-server API requires PATCH.
+            fetchOptions: opts => (opts.method === 'POST' ?  { method: 'PATCH' } : {}),
+            // As the API stores projects in this format `{id: 1, data: projectData }`,
+            // we have to properly update the body before the store and extract the
+            // project data from the response result.
+            onStore: data => ({ id: projectID, data }),
+            onLoad: result => result.data,
+          }
+        }
+      },  
       blockManager: {
         appendTo: "#blocks",
         openBlocks: false,
@@ -47,7 +67,7 @@ const GrapesEditor = () => {
               {
                 id: "show-layers",
                 active: true,
-                label: "Layers",
+                label: '<i class="bi bi-layers-fill"></i>',
                 command: "show-layers",
                 // Once activated disable the possibility to turn it off
                 togglable: false,
@@ -55,22 +75,22 @@ const GrapesEditor = () => {
               {
                 id: "show-style",
                 active: true,
-                label: "Styles",
+                label: '<i class="bi bi-filetype-css"></i>',
                 command: "show-styles",
                 togglable: false,
               },
               {
-                id: 'show-traits',
+                id: "show-traits",
                 active: true,
-                label: 'Traits',
-                command: 'show-traits',
+                label: "Traits",
+                command: "show-traits",
                 togglable: false,
-            }
+              },
             ],
           },
         ],
       },
-    
+
       selectorManager: {
         appendTo: ".styles-container",
       },
@@ -118,8 +138,7 @@ const GrapesEditor = () => {
           },
         ],
       },
-      
-    });
+    },);
 
     // Rest of your block manager and other configurations...
 
@@ -208,20 +227,20 @@ const GrapesEditor = () => {
           id: "visibility",
           active: true, // active by default
           className: "btn-toggle-borders",
-          label: "<u>B</u>",
+          label: '<i class="bi bi-border-all"></i>',
           command: "sw-visibility", // Built-in command
         },
         {
           id: "export",
           className: "btn-open-export",
-          label: "Exp",
+          label: '<i class="bi bi-file-code"></i>',
           command: "export-template",
           context: "export-template", // For grouping context of buttons from the same panel
         },
         {
           id: "show-json",
           className: "btn-show-json",
-          label: "JSON",
+          label: '<i class="bi bi-filetype-json"></i>',
           context: "show-json",
           command(editor) {
             editor.Modal.setTitle("Components JSON")
@@ -269,31 +288,32 @@ const GrapesEditor = () => {
         smEl.style.display = "none";
       },
     });
-    editor.Commands.add('show-traits', {
+    editor.Commands.add("show-traits", {
       getTraitsEl(editor) {
-        const row = editor.getContainer().closest('.editor-row');
-        return row.querySelector('.traits-container');
+        const row = editor.getContainer().closest(".editor-row");
+        return row.querySelector(".traits-container");
       },
       run(editor, sender) {
-        this.getTraitsEl(editor).style.display = '';
+        this.getTraitsEl(editor).style.display = "";
       },
       stop(editor, sender) {
-        this.getTraitsEl(editor).style.display = 'none';
+        this.getTraitsEl(editor).style.display = "none";
       },
     });
-    
+
     // Cleanup when component unmounts
     return () => {
       editor.destroy();
     };
-  }, []); // Empty dependency array ensures this runs once on component mount
+  }, [projectEndpoint]); // Empty dependency array ensures this runs once on component mount
 
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-12 panel__top">
           <div className="panel__basic-actions"></div>
-          <div class="panel__switcher"></div>
+          <div className="fw-bold text-warning">DragBoom</div>
+          <div className="panel__switcher"></div>
         </div>
       </div>
 
@@ -308,8 +328,8 @@ const GrapesEditor = () => {
           </div>
           <div className="panel__right vh-100 d-none d-sm-block">
             <div className="layers-container"></div>
-            <div class="styles-container"></div>
-            <div class="traits-container"></div>
+            <div className="styles-container"></div>
+            <div className="traits-container"></div>
           </div>
         </div>
       </div>

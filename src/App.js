@@ -1,8 +1,30 @@
-import GrapesEditor from "./component/Grapes";
-import "grapesjs/dist/css/grapes.min.css"; // Include GrapeJS styles
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Signup from "./component/Signup";
+import Edit from "./component/Edit";
+import Dash from "./component/Dash";
+import Grapes from "./component/Grapes";
+
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <Grapes />,
+  },
+  {
+    path: "/edit/:id",
+    element: <Edit />,
+  },
+  {
+    path: "/dash",
+    element: <Dash />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+]);
 
 function App() {
-  return <GrapesEditor />;
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;
