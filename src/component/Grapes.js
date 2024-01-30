@@ -59,6 +59,13 @@ const GrapesEditor = () => {
                 command: "show-styles",
                 togglable: false,
               },
+              {
+                id: 'show-traits',
+                active: true,
+                label: 'Traits',
+                command: 'show-traits',
+                togglable: false,
+            }
             ],
           },
         ],
@@ -262,6 +269,19 @@ const GrapesEditor = () => {
         smEl.style.display = "none";
       },
     });
+    editor.Commands.add('show-traits', {
+      getTraitsEl(editor) {
+        const row = editor.getContainer().closest('.editor-row');
+        return row.querySelector('.traits-container');
+      },
+      run(editor, sender) {
+        this.getTraitsEl(editor).style.display = '';
+      },
+      stop(editor, sender) {
+        this.getTraitsEl(editor).style.display = 'none';
+      },
+    });
+    
     // Cleanup when component unmounts
     return () => {
       editor.destroy();
